@@ -1,0 +1,13 @@
+net stop wuauserv
+net stop bits
+net stop cryptSvc
+net stop msiserver
+Ren C:\Windows\SoftwareDistribution SoftwareDistribution.old
+Ren C:\Windows\System32\catroot2 Catroot2.old
+net start wuauserv
+net start bits
+net start cryptSvc
+net start msiserver
+DISM /online /cleanup-image /restorehealth 
+sfc /scannow
+if((Get-BitLockerVolume -MountPoint "C:").ProtectionStatus -eq 'On'){Suspend-BitLocker -MountPoint "C:" -RebootCount 1}; $dir = 'C:\WindowsU\package'; mkdir $dir; $webClient = New-Object System.Net.WebClient; $url = 'https://go.microsoft.com/fwlink/?LinkID=799445'; $file = "$($dir)\Win10Upgrade.exe"; $webClient.DownloadFile($url,$file); Start-Process -FilePath $file -ArgumentList '/skipeula /auto upgrade /copylogs $dir'
